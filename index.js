@@ -10,6 +10,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/tuhocMongoose");
 const orderModel = require("./order.schema");
 const inventoryModel = require("./inventory.schema");
 const userModel = require("./user.schema");
+const validateToken = require("./validateToken");
 
 app.use(express.json());
 
@@ -38,8 +39,19 @@ app.post("/login", async (req, res) => {
         { username: `${findUser.username}`, id: `${findUser._id}` },
         "afjjsahjfhjkas"
       );
-      res.send(`findUser:${findUser}, token:${token}`);
+      findUser.token = token;
+      findUser.save();
+      res.send({ findUser: findUser, token: token });
     }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/resource", validateToken, async (req, res) => {
+  try {
+    const result = await orderModel.find();
+    res.send(result);
   } catch (error) {
     console.log(error);
   }
